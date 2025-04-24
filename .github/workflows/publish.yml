@@ -75,7 +75,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           name: github-pages  # Name of the artifact
-          path: map/  # Directory to upload
+          path: /  # Directory to upload
 
   deploy:
     # 🚀 Deployment job depends on the 'build' job
