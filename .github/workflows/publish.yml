@@ -1,34 +1,30 @@
-# 📌 Workflow Name
-# This name will appear in the GitHub Actions UI
+# 📄 GitHub Actions Workflow: Publish Web Map
+
 name: Publish Web Map
 
-# 🕒 Trigger Settings
+# 🕒 Trigger the workflow daily at 03:00 UTC and allow manual runs
 on:
-  # ⏰ Scheduled trigger: runs daily at 03:00 UTC
   schedule:
-    - cron: '0 3 * * *'
-  # 🚀 Manual trigger: allows the workflow to be run manually from the GitHub UI
+    - cron: '0 3 * * *'  # Runs daily at 03:00 UTC
   workflow_dispatch:
 
-# 🔐 Permissions required for this workflow
+# 🔐 Set permissions for the workflow
 permissions:
-  contents: write       # Allows pushing changes to the repository
-  pages: write          # Allows deploying to GitHub Pages
+  contents: write       # To push changes to the repository
+  pages: write          # To deploy to GitHub Pages
   id-token: write       # Required for GitHub Pages deployment
 
 # 🛠️ Define the jobs to be run
 jobs:
   build:
-    # 🖥️ Specify the type of runner to use
     runs-on: ubuntu-latest
 
-    # 🧱 Steps to execute in this job
     steps:
       # 📥 Step 1: Checkout the repository code
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensures full history is fetched for git operations
+          fetch-depth: 0  # Fetch full history for git operations
 
       # 🐍 Step 2: Set up Python environment
       - name: Set Up Python
@@ -39,7 +35,7 @@ jobs:
       # 📦 Step 3: Install Python dependencies
       - name: Install Dependencies
         run: |
-          pip install -r requirements.txt  # Install required packages
+          pip install -r requirements.txt
 
       # 🗺️ Step 4: Generate the web map
       - name: Generate Map
@@ -52,30 +48,24 @@ jobs:
           git config user.name "${{ github.actor }}"  # Set Git username
           git config user.email "${{ github.actor }}@users.noreply.github.com"  # Set Git email
 
-      # 🔍 Step 6: Check for changes in the generated map
-      - name: Check for Changes
-        id: changes
+      # 🔄 Step 6: Pull latest changes to prevent non-fast-forward errors
+      - name: Pull Latest Changes
         run: |
-          git add index.html  # Stage the generated HTML file
-          if git diff --cached --quiet; then
-            echo "has_changes=false" >> $GITHUB_ENV  # No changes detected
-          else
-            echo "has_changes=true" >> $GITHUB_ENV  # Changes detected
-          fi
+          git pull origin main  # Update local branch with remote changes
 
-      # 💾 Step 7: Commit and push changes if any
+      # 💾 Step 7: Commit and push changes
       - name: Commit and Push Changes
-        if: env.has_changes == 'true'  # Only run if changes were detected
         run: |
-          git commit -m "Update index.html with latest map data"  # Commit changes
-          git push  # Push to the repository
+          git add map/index.html  # Stage the generated HTML file
+          git commit -m "Update index.html with latest map data" || echo "No changes to commit"
+          git push origin main  # Push changes to the repository
 
       # 📤 Step 8: Upload the 'map' directory as an artifact for deployment
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           name: github-pages  # Name of the artifact
-          path: /  # Directory to upload
+          path: map/  # Directory to upload
 
   deploy:
     # 🚀 Deployment job depends on the 'build' job
@@ -87,7 +77,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}  # URL of the deployed site
 
-    # 🧱 Steps to execute in the deployment job
     steps:
       # 🚀 Step 9: Deploy the uploaded artifact to GitHub Pages
       - name: Deploy to GitHub Pages
