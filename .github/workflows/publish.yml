@@ -56,7 +56,7 @@ jobs:
       # 💾 Step 7: Commit and push changes
       - name: Commit and Push Changes
         run: |
-          git add map/index.html  # Stage the generated HTML file
+          git add . 
           git commit -m "Update index.html with latest map data" || echo "No changes to commit"
           git push origin main  # Push changes to the repository
 
@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           name: github-pages  # Name of the artifact
-          path: map/  # Directory to upload
+          path: /  # Directory to upload
 
   deploy:
     # 🚀 Deployment job depends on the 'build' job
