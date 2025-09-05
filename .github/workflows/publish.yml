@@ -2,8 +2,9 @@
 
 name: Publish Web Map
 
-# 🕒 Trigger the workflow daily at 03:00 UTC and allow manual runs
+# 🕒 Trigger the workflow daily at 03:00 UTC, on push, and allow manual runs
 on:
+  push:
   schedule:
     - cron: '0 3 * * *'  # Runs daily at 03:00 UTC
   workflow_dispatch:
