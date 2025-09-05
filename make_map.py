@@ -58,6 +58,19 @@ interactive_layer = folium.GeoJson(
     popup=folium.GeoJsonPopup(fields=popup_fields, labels=True),
 ).add_to(m)
 
+# Try to fetch and display the administrative boundary polygon for the place.
+# OpenStreetMap uses the "admin_level" tag for such boundaries:
+# https://wiki.openstreetmap.org/wiki/Key:admin_level
+try:
+    boundary_gdf = ox.geocode_to_gdf(place).to_crs(epsg=4326)
+    folium.GeoJson(
+        boundary_gdf,
+        name="Boundary",
+        style_function=lambda x: {"fillOpacity": 0, "color": "green"},
+    ).add_to(m)
+except Exception:
+    pass
+
 # Add layer control to toggle tile layers
 folium.LayerControl().add_to(m)
 
