@@ -51,7 +51,7 @@ for _, row in gdf.iterrows():
 # 10. Add a plain GeoJSON layer with interactive circle markers
 interactive_layer = folium.GeoJson(
     gdf,
-    name="Bus Stops (Points)",
+    name="Bus Stops (Points)", show=False,
     marker=folium.CircleMarker(
         radius=5, color="blue", fill=True, fill_opacity=0.7
     ),
