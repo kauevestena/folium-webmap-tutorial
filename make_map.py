@@ -47,7 +47,7 @@ for _, row in gdf.iterrows():
             popup=row.get("name", description),
         ).add_to(marker_cluster)
 
-# Add a regular point layer with interactive markers
+# Add a regular point layer with interactive markers (disabled by default)
 interactive_layer = folium.GeoJson(
     gdf,
     name="Bus Stops (Points)",
@@ -56,6 +56,7 @@ interactive_layer = folium.GeoJson(
     ),
     highlight_function=lambda x: {"radius": 8},
     popup=folium.GeoJsonPopup(fields=popup_fields, labels=True),
+    show=False  # This parameter might control initial visibility
 ).add_to(m)
 
 # Try to fetch and display the administrative boundary polygon for the place.
@@ -71,7 +72,7 @@ try:
 except Exception:
     pass
 
-# Add layer control to toggle tile layers
+# Add layer control to toggle tile layers and overlays
 folium.LayerControl().add_to(m)
 
 # Save the map
