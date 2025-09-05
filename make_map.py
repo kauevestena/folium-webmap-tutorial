@@ -16,7 +16,7 @@ gdf = ox.features_from_place(place, tags=tags)
 gdf = gdf.to_crs(epsg=4326)
 
 # Compute the centroid of all bus stops
-centroid = gdf.unary_union.centroid
+centroid = gdf.union_all().centroid
 center_latlon = [centroid.y, centroid.x]
 
 # Create a Folium map centered at the centroid with multiple tile layers
@@ -30,7 +30,7 @@ folium.TileLayer(
 ).add_to(m)
 
 # Add bus stop markers to the map using a MarkerCluster plugin
-marker_cluster = MarkerCluster().add_to(m)
+marker_cluster = MarkerCluster(name="Bus Stops").add_to(m)
 for _, row in gdf.iterrows():
     coords = row.geometry
     if coords.geom_type == 'Point':
