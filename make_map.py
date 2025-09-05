@@ -9,11 +9,19 @@ tags = {"highway": "bus_stop"}
 description = "Bus Stop"
 zoom_level = 13
 
+# Fields to include in popup
+popup_fields = ["name", "operator", "network", "ref"]
+
 # Fetch bus stop features
 gdf = ox.features_from_place(place, tags=tags)
 
 # Ensure the GeoDataFrame has the correct CRS
 gdf = gdf.to_crs(epsg=4326)
+
+# Ensure requested popup fields exist
+for field in popup_fields:
+    if field not in gdf.columns:
+        gdf[field] = ""
 
 # Compute the centroid of all bus stops
 centroid = gdf.union_all().centroid
@@ -30,14 +38,25 @@ folium.TileLayer(
 ).add_to(m)
 
 # Add bus stop markers to the map using a MarkerCluster plugin
-marker_cluster = MarkerCluster(name="Bus Stops").add_to(m)
+marker_cluster = MarkerCluster(name="Bus Stops (Cluster)").add_to(m)
 for _, row in gdf.iterrows():
     coords = row.geometry
-    if coords.geom_type == 'Point':
+    if coords.geom_type == "Point":
         folium.Marker(
             location=[coords.y, coords.x],
-            popup=row.get("name", description)
+            popup=row.get("name", description),
         ).add_to(marker_cluster)
+
+# Add a regular point layer with interactive markers
+interactive_layer = folium.GeoJson(
+    gdf,
+    name="Bus Stops (Points)",
+    marker=folium.CircleMarker(
+        radius=5, color="blue", fill=True, fill_opacity=0.7
+    ),
+    highlight_function=lambda x: {"radius": 8},
+    popup=folium.GeoJsonPopup(fields=popup_fields, labels=True),
+).add_to(m)
 
 # Add layer control to toggle tile layers
 folium.LayerControl().add_to(m)
